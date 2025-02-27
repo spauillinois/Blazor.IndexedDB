@@ -1,5 +1,5 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
-import { IDBPDatabase, IDBPObjectStore, deleteDB, openDB } from 'https://cdn.skypack.dev/pin/idb@v8.0.2-zDkVrkdPHRupOT4ox7s2/mode=imports,min/optimized/idb.js';
+import { IDBPDatabase, IDBPObjectStore, deleteDB, openDB } from 'idb';
 import { IDbInformation, IDbStore, IDotNetInstanceWrapper, IIndexSearch, IStoreRecord } from './InteropInterfaces';
 
 export class IndexedDbManager {

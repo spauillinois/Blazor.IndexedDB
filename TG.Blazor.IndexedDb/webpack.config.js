@@ -1,7 +1,11 @@
-﻿const path = require('path');
-const webpack = require('webpack');
+﻿import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import webpack from 'webpack';
 
-module.exports = (env, args) =>({
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export default (env, args) =>({
     resolve: {
         extensions: ['.ts', '.js']
     },
@@ -17,8 +21,11 @@ module.exports = (env, args) =>({
     entry: {
         "indexedDb.Blazor": './client/InitialiseIndexDbBlazor.ts'
     },
+    optimization: {
+        runtimeChunk: true,
+    },
     output: {
-        path: path.join(__dirname, '/wwwroot'),
+        path: join(__dirname, '/wwwroot'),
         filename: '[name].js'
     }
 });

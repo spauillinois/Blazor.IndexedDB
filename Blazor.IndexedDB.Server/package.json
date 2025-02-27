@@ -5,16 +5,16 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build:debug": "webpack --mode=development",
-    "build:production": "webpack --mode=production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "snowpack build"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "snowpack": "^3.8.8",
+    "@snowpack/plugin-optimize": "0.2.13",
     "tsc": "2.0.4"
   },
   "dependencies": {
-    "idb": "^8.0.2"
+    "idb": "8.0.2"
   }
 }

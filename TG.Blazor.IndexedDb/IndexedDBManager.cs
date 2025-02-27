@@ -29,8 +29,8 @@ public interface IIndexedDBManager
 public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : IIndexedDBManager
 {
     private const string _interopPrefix = "TimeGhost.IndexedDbManager";
-    private const string _javascriptPath = "./_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js";
-    private JSRuntime? _module;
+    private const string _javascriptPath = "./indexedDbBlazor.js"; // "./_content/TG.Blazor.IndexedDB/indexedDbBlazor.js";
+    private IJSObjectReference? _module;
     private bool _isOpen;
 
     /// <summary>
@@ -48,7 +48,6 @@ public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : II
     /// <returns></returns>
     public async Task OpenDb()
     {
-
         var result = await CallJavascript<string>(DbFunctions.OpenDb, dbStore, new { Instance = DotNetObjectReference.Create(this), MethodName= "Callback"});
         _isOpen = true;
 
@@ -132,6 +131,7 @@ public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : II
     public async Task AddRecord<T>(StoreRecord<T> recordToAdd)
     {
         await EnsureDbOpen();
+
         try
         {
             var result = await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
@@ -152,6 +152,7 @@ public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : II
     public async Task UpdateRecord<T>(StoreRecord<T> recordToUpdate)
     {
         await EnsureDbOpen();
+
         try
         {
             var result = await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
@@ -172,6 +173,7 @@ public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : II
     public async Task<List<TResult>?> GetRecords<TResult>(string storeName)
     {
         await EnsureDbOpen();
+
         try
         {
             var results = await CallJavascript<List<TResult>>(DbFunctions.GetRecords, storeName);
@@ -303,6 +305,7 @@ public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : II
     public async Task<IList<TResult>?> GetAllRecordsByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
     {
         await EnsureDbOpen();
+
         try
         {
             var results = await CallJavascript<StoreIndexQuery<TInput>, IList<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
@@ -322,16 +325,28 @@ public sealed class IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime) : II
 
     private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
     {
-        _module ??= await jsRuntime.InvokeAsync<JSRuntime>("import", _javascriptPath);
+        await InitializeModule();
 
-        return await _module.InvokeAsync<TResult>($"{_interopPrefix}.{functionName}", data);
+        return await _module!.InvokeAsync<TResult>($"{_interopPrefix}.{functionName}", data);
     }
 
     private async Task<TResult> CallJavascript<TResult>(string functionName, params object[] args)
     {
-        _module ??= await jsRuntime.InvokeAsync<JSRuntime>("import", _javascriptPath);
+        await InitializeModule();
 
-        return await _module.InvokeAsync<TResult>($"{_interopPrefix}.{functionName}", args);
+        return await _module!.InvokeAsync<TResult>($"{_interopPrefix}.{functionName}", args);
+    }
+
+    private async Task InitializeModule()
+    {
+        try
+        {
+            _module ??= await jsRuntime.InvokeAsync<IJSObjectReference>("import", _javascriptPath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private async Task EnsureDbOpen()

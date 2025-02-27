@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "outDir": "wwwroot",
+    "target": "ES6",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "paths": {
+      "*": [
+        "node_modules/*"
+      ]
+    },
+    "lib": [ "ES2015", "ES2015.Promise", "DOM" ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

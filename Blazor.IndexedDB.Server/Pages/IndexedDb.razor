@@ -5,7 +5,7 @@
 
 @implements IDisposable
 
-@inject IndexedDBManager DbManager
+@inject IIndexedDBManager DbManager
 @inject DbStore DbStore
 
 <div>
@@ -45,15 +45,15 @@
         @foreach (var person in People)
         {
 
-            <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
-                <p>Id: @person.Id</p>
-                <p>First Name: @person.FirstName</p>
-                <p>Last Name: @person.LastName</p>
-                <div>
-                    <button class="btn btn-outline-primary" @onclick="(() => EditPerson(person.Id.Value))">Edit</button>
-                    <button class="btn btn-outline-warning" @onclick="(() => DeleteRecord(person.Id.Value))">Delete</button>
+                <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
+                    <p>Id: @person.Id</p>
+                    <p>First Name: @person.FirstName</p>
+                    <p>Last Name: @person.LastName</p>
+                    <div>
+                        <button class="btn btn-outline-primary" @onclick="(() => EditPerson(person.Id.Value))">Edit</button>
+                        <button class="btn btn-outline-warning" @onclick="(() => DeleteRecord(person.Id.Value))">Delete</button>
+                    </div>
                 </div>
-            </div>
 
         }
 
@@ -61,6 +61,8 @@
 </div>
 
 @code {
+    [Inject]
+    public required IJSRuntime jsRuntime { get; set; }
 
     string Message { get; set; }
     Person CurrentPerson { get; set; } = new Person();
@@ -73,7 +75,6 @@
     protected override void OnInitialized()
     {
         DbManager.ActionCompleted += OnIndexedDbNotification;
-
     }
 
     public void Dispose()
@@ -170,7 +171,7 @@
         People.Clear();
     }
 
-    private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+    private void OnIndexedDbNotification(object? sender, IndexedDBNotificationArgs args)
     {
         Message = args.Message;
     }
