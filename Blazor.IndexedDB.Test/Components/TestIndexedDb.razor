@@ -1,18 +1,20 @@
 ﻿@using System.ComponentModel
+@using System.Text;
 @using Blazor.IndexedDB.Test.Models
-@using TG.Blazor.IndexedDB
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
-@using System.Text;
+@using TG.Blazor.IndexedDB
+
 @implements IDisposable
+
 @inject IndexedDBManager DbManager
 @inject DbStore DbStore
 
-    <div>
-        <p><b>status:</b> @Message</p>
-        <p><b>Db version:</b> @DbManager.CurrentVersion</p>
-        <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
-    </div>
+<div>
+    <p><b>status:</b> @Message</p>
+    <p><b>Db version:</b> @DbManager.CurrentVersion</p>
+    <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
+</div>
 <div class="d-flex flex-row align-items-start">
     <div class="d-flex flex-column">
         <button class="btn btn-outline-primary m-4" @onclick="OpenDatabase">Open Database</button>
@@ -20,11 +22,11 @@
         <button class="btn btn-outline-primary m-4" @onclick="ClearStore">Clear Store</button>
         <button class="btn btn-outline-primary m-4" @onclick="DeleteDatabase">Delete Database</button>
         <button class="btn btn-outline-danger m-4" @onclick="Add130Records">Pre-populate Store</button>
-        <div class="m-4 d-flex flex-row" >
+        <div class="m-4 d-flex flex-row">
             <button class="btn btn-outline-primary mr-2" @onclick="AddNewStore">Add New Store</button>
             <input type="text" placeholder="Enter new store name" @bind="NewStoreName" />
         </div>
-      
+
     </div>
 
     <div class="d-flex, flex-column">
@@ -35,7 +37,7 @@
             <div class="m-4">
                 <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
             </div>
-           
+
             <button class="btn btn-primary m-4" @onclick="AddRecord">Add/Update Record</button>
         </div>
     </div>
@@ -117,15 +119,13 @@
         for (int i = 0; i < 129; i++)
         {
             var dummyRecord = new Person
-            {
-                FirstName = i.ToString(),
-                LastName = i.ToString()
-            };
+                {
+                    FirstName = i.ToString(),
+                    LastName = i.ToString()
+                };
 
-            var storeRecord = new StoreRecord<Person>
-            { Storename = DbManager.Stores[0].Name,
-                Data = dummyRecord
-            };
+            var storeRecord = new StoreRecord<Person>(DbManager.Stores[0].Name, dummyRecord);
+
             await DbManager.AddRecord(storeRecord);
 
             this.Message = $"Records added {i}";
@@ -148,12 +148,7 @@
 
     protected async void AddRecord()
     {
-        var newRecord = new StoreRecord<Person>
-        {
-            Storename = DbManager.Stores[0].Name,
-            Data = CurrentPerson
-        };
-
+        var newRecord = new StoreRecord<Person>(DbManager.Stores[0].Name, CurrentPerson);
 
         if (newRecord.Data.Id.HasValue)
         {
@@ -178,11 +173,7 @@
 
     protected async Task AddNewStore()
     {
-        var newStoreSchema = new StoreSchema
-        {
-            Name = NewStoreName,
-            PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
-        };
+        var newStoreSchema = new StoreSchema(NewStoreName, new("id", "id"));
 
         await DbManager.AddNewStore(newStoreSchema);
         await DbManager.GetCurrentDbState();

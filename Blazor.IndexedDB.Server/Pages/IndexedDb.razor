@@ -2,74 +2,77 @@
 
 @using Blazor.IndexedDB.Server.Models
 @using TG.Blazor.IndexedDB
+
 @implements IDisposable
+
 @inject IndexedDBManager DbManager
 @inject DbStore DbStore
 
-    <div>
-        <p><b>status:</b> @Message</p>
-        <p><b>Db version:</b> @DbManager.CurrentVersion</p>
-        <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
-        
+<div>
+    <p><b>status:</b> @Message</p>
+    <p><b>Db version:</b> @DbManager.CurrentVersion</p>
+    <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
+
+</div>
+<div class="d-flex flex-row align-items-start">
+    <div class="d-flex flex-column">
+        <button class="btn btn-outline-primary m-4" @onclick="OpenDatabaseAsync">Open Database</button>
+        <button class="btn btn-outline-primary m-4" @onclick="GetRecords">Get Records</button>
+        <button class="btn btn-outline-primary m-4" @onclick="ClearStore">Clear Store</button>
+        <button class="btn btn-outline-primary m-4" @onclick="DeleteDatabase">Delete Database</button>
+        <div class="m-4 d-flex flex-row">
+            <button class="btn btn-outline-primary mr-2" @onclick="AddNewStore">Add New Store</button>
+            <input type="text" placeholder="Enter new store name" @bind="NewStoreName" />
+        </div>
+
     </div>
-    <div class="d-flex flex-row align-items-start">
-        <div class="d-flex flex-column">
-            <button class="btn btn-outline-primary m-4" @onclick="OpenDatabaseAsync">Open Database</button>
-            <button class="btn btn-outline-primary m-4" @onclick="GetRecords">Get Records</button>
-            <button class="btn btn-outline-primary m-4" @onclick="ClearStore">Clear Store</button>
-            <button class="btn btn-outline-primary m-4" @onclick="DeleteDatabase">Delete Database</button>
-            <div class="m-4 d-flex flex-row">
-                <button class="btn btn-outline-primary mr-2" @onclick="AddNewStore">Add New Store</button>
-                <input type="text" placeholder="Enter new store name" @bind="NewStoreName" />
+
+    <div class="d-flex, flex-column">
+        <div class="m-4 border d-flex flex-column">
+            <div class="m-4">
+                <label>First Name</label> <input id="firstName" type="text" @bind="@CurrentPerson.FirstName" />
+            </div>
+            <div class="m-4">
+                <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
             </div>
 
-        </div>
-
-        <div class="d-flex, flex-column">
-            <div class="m-4 border d-flex flex-column">
-                <div class="m-4">
-                    <label>First Name</label> <input id="firstName" type="text" @bind="@CurrentPerson.FirstName" />
-                </div>
-                <div class="m-4">
-                    <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
-                </div>
-
-                <button class="btn btn-primary m-4" @onclick="AddRecord">Add/Update Record</button>
-            </div>
-        </div>
-
-        <div class="d-flex flex-row flex-wrap mt-4">
-
-            @foreach (var person in People)
-            {
-
-                <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
-                    <p>Id: @person.Id</p>
-                    <p>First Name: @person.FirstName</p>
-                    <p>Last Name: @person.LastName</p>
-                    <div>
-                        <button class="btn btn-outline-primary" @onclick="(() => EditPerson(person.Id.Value))">Edit</button>
-                        <button class="btn btn-outline-warning" @onclick="(() => DeleteRecord(person.Id.Value))">Delete</button>
-                    </div>
-                </div>
-
-            }
-
+            <button class="btn btn-primary m-4" @onclick="AddRecord">Add/Update Record</button>
         </div>
     </div>
+
+    <div class="d-flex flex-row flex-wrap mt-4">
+
+        @foreach (var person in People)
+        {
+
+            <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
+                <p>Id: @person.Id</p>
+                <p>First Name: @person.FirstName</p>
+                <p>Last Name: @person.LastName</p>
+                <div>
+                    <button class="btn btn-outline-primary" @onclick="(() => EditPerson(person.Id.Value))">Edit</button>
+                    <button class="btn btn-outline-warning" @onclick="(() => DeleteRecord(person.Id.Value))">Delete</button>
+                </div>
+            </div>
+
+        }
+
+    </div>
+</div>
 
 @code {
 
     string Message { get; set; }
     Person CurrentPerson { get; set; } = new Person();
     List<Person>
-    People { get; set; } = new List<Person>
+    People
+    { get; set; } = new List<Person>
     ();
     string NewStoreName { get; set; } = "";
 
     protected override void OnInitialized()
     {
-    DbManager.ActionCompleted += OnIndexedDbNotification;
+        DbManager.ActionCompleted += OnIndexedDbNotification;
 
     }
 
@@ -80,21 +83,21 @@
 
     protected async Task OpenDatabaseAsync()
     {
-    await DbManager.OpenDb();
-    await DbManager.GetCurrentDbState();
-    StateHasChanged();
+        await DbManager.OpenDb();
+        await DbManager.GetCurrentDbState();
+        StateHasChanged();
     }
 
     protected List<string>
     GetIndexes()
     {
-    return DbManager.Stores[0].Indexes.Select(idx => idx.Name).ToList();
+        return DbManager.Stores[0].Indexes.Select(idx => idx.Name).ToList();
     }
 
     protected async void GetRecords()
     {
         var results = await DbManager.GetRecords<Person>(DbManager.Stores[0].Name);
-        
+
         if (results != null && results.Any())
         {
             People = results;
@@ -124,12 +127,7 @@
 
     protected async void AddRecord()
     {
-        var newRecord = new StoreRecord<Person>
-        {
-            Storename = DbManager.Stores[0].Name,
-            Data = CurrentPerson
-        };
-
+        var newRecord = new StoreRecord<Person>( DbManager.Stores[0].Name, CurrentPerson);
 
         if (newRecord.Data.Id.HasValue)
         {
@@ -154,11 +152,7 @@
 
     protected async Task AddNewStore()
     {
-        var newStoreSchema = new StoreSchema
-        {
-            Name = NewStoreName,
-            PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
-        };
+        var newStoreSchema = new StoreSchema(1, NewStoreName, new IndexSpec("id", "id", null, true));
 
         await DbManager.AddNewStore(newStoreSchema);
         await DbManager.GetCurrentDbState();
@@ -176,8 +170,8 @@
         People.Clear();
     }
 
-                private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
-                {
-                Message = args.Message;
-                }
-                }
+    private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+    {
+        Message = args.Message;
+    }
+}

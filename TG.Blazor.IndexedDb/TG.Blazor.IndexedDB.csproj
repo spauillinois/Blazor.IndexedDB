@@ -1,63 +1,58 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RazorLangVersion>3.0</RazorLangVersion>
-    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-    <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
-    <AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
-    <RootNamespace>TG.Blazor.IndexedDB</RootNamespace>
-    <Version>1.5.0-preview</Version>
-    <Authors>William Tulloch</Authors>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/wtulloch/Blazor.IndexedDB</RepositoryUrl>
-    <RepositoryType>GIT</RepositoryType>
-    <Description>A Blazor library for interacting with IndexedDB</Description>
-    <Copyright>Copyright 2019 William Tulloch</Copyright>
-    <PackageReleaseNotes>Updated to work with both server and client-side Blazor</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+		<TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+		<DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
+		<AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
+		<RootNamespace>TG.Blazor.IndexedDB</RootNamespace>
+		<Version>1.5.0-preview</Version>
+		<Authors>William Tulloch</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/wtulloch/Blazor.IndexedDB</RepositoryUrl>
+		<RepositoryType>GIT</RepositoryType>
+		<Description>A Blazor library for interacting with IndexedDB</Description>
+		<Copyright>Copyright 2019 William Tulloch</Copyright>
+		<PackageReleaseNotes>Updated to work with both server and client-side Blazor</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="package.json" />
-    <Content Remove="tsconfig.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Remove="package.json" />
+		<Content Remove="tsconfig.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <WebpackInputs Include="**\*.ts" Exclude="wwwroot\**;node_modules\**; **\*.d.ts" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="IndexedDB\" />
-    <Folder Include="client\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="client\" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <None Include="package.json" />
-    <None Include="tsconfig.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="package.json" />
+		<None Include="tsconfig.json" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.5" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.2" />
+	</ItemGroup>
 
-  <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
-    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec Command="npm install" />
-  </Target>
+	<Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
+		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+		<Exec Command="npm install" />
+	</Target>
 
-  <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\indexedDb.Blazor.js" DependsOnTargets="EnsureNpmRestored">
-    <Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
-    <Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
-    <ItemGroup>
-      <Content Include="wwwroot\**\*.js" />
-    </ItemGroup>
-  </Target>
+	<Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\indexedDb.Blazor.js" DependsOnTargets="EnsureNpmRestored">
+		<Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
+		<Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
+		<ItemGroup>
+			<Content Include="wwwroot\**\*.js" />
+		</ItemGroup>
+	</Target>
 
- 
+
 
 </Project>

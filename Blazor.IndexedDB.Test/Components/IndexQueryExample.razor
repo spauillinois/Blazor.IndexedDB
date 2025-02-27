@@ -1,12 +1,16 @@
 ﻿@using Blazor.IndexedDB.Test.Models
 @using TG.Blazor.IndexedDB
+
 @implements IDisposable
+
 @inject IndexedDBManager DbManager
+
 <div>
-<p>To query by index select index and enter a value. This will return the first record that matches the value. <br />
-   To get all the records that match a given value, check the "Return all matches" checkbox. <br />
-    <em>Note:</em> IndexedDB does not support partial matches or wildcards.
-</p>
+    <p>
+        To query by index select index and enter a value. This will return the first record that matches the value. <br />
+        To get all the records that match a given value, check the "Return all matches" checkbox. <br />
+        <em>Note:</em> IndexedDB does not support partial matches or wildcards.
+    </p>
 </div>
 <div>
     <p><b>status:</b> @Message</p>
@@ -34,16 +38,16 @@
         </div>
         <button class="btn btn-outline-primary" @onclick="SearchForRecords">Search</button>
     </div>
-     <div class="d-flex flex-row flex-wrap mt-4 ml-4">
+    <div class="d-flex flex-row flex-wrap mt-4 ml-4">
 
         @foreach (var person in People)
         {
 
             <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
-                 <p>Id: @person.Id</p>
+                <p>Id: @person.Id</p>
                 <p>First Name: @person.FirstName</p>
                 <p>Last Name: @person.LastName</p>
-                
+
             </div>
 
         }
@@ -51,7 +55,7 @@
     </div>
 </div>
 
-@code{
+@code {
 
     protected string Message { get; set; }
 
@@ -90,12 +94,7 @@
 
         People.Clear();
 
-        var indexSearch = new StoreIndexQuery<string>
-        {
-            Storename = DbManager.Stores[0].Name,
-            IndexName = SelectedIndex,
-            QueryValue = SearchString,
-        };
+        var indexSearch = new StoreIndexQuery<string>(DbManager.Stores[0].Name, SelectedIndex, SearchString);
 
         if (GetAll)
         {

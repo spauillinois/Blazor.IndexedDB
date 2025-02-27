@@ -1,41 +1,30 @@
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
+
 using TG.Blazor.IndexedDB;
 
-namespace Blazor.IndexedDB.Test
+namespace Blazor.IndexedDB.Test;
+
+public class Startup
 {
-    public class Startup
+    public void ConfigureServices(IServiceCollection services)
     {
-        public void ConfigureServices(IServiceCollection services)
+        services.AddIndexedDB(dbStore =>
         {
-            services.AddIndexedDB(dbStore =>
+            dbStore.DbName = "TheFactory";
+            dbStore.Version = 1;
+
+            dbStore.Stores.Add(new StoreSchema(dbStore.Version, "Employees", new("id", "id", true))
             {
-                dbStore.DbName = "TheFactory";
-                dbStore.Version = 1;
-
-                dbStore.Stores.Add(new StoreSchema
-                {
-                    Name = "Employees",
-                    PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
-                    Indexes = new List<IndexSpec>
-                    {
-                        new IndexSpec{Name="firstName", KeyPath = "firstName", Auto=false},
-                        new IndexSpec{Name="lastName", KeyPath = "lastName", Auto=false}
-
-                    }
-                });
-                dbStore.Stores.Add(new StoreSchema
-                {
-                    Name = "Outbox",
-                    PrimaryKey = new IndexSpec { Auto = true }
-                });
+                Indexes =
+                [
+                    new IndexSpec("firstName", "firstName", false),
+                    new IndexSpec("lastName", "lastName", false)
+                ]
             });
-        }
 
-        public void Configure(IComponentsApplicationBuilder app)
-        {
-            app.AddComponent<App>("app");
-        }
+            dbStore.Stores.Add(new StoreSchema(dbStore.Version, "Outbox", new(true)));
+        });
     }
+
+    //public void Configure(IComponentsApplicationBuilder app) => app.AddComponent<App>("app");
 }
